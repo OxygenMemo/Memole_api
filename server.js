@@ -45,12 +45,20 @@ app.delete('/timeline/:timelineid',(req,res) => {
 //---------------------- text ----------------------
 
 //get text by timeline id
-app.get('/timeline/:timelineid/text/',(req,res) => {
+app.get('/timeline/:timelineid/text',(req,res) => {
     let timeline_id = req.params.timelineid
     const result = connection.query(`SELECT * FROM timeline INNER JOIN text ON text.timeline_id = timeline.timeline_id WHERE timeline.timeline_id = ${timeline_id}`);
     res.status(200).json(result)
 })
+//insert text 
+app.post('/timeline/:timelineid/text',(req,res) => {
+    let newtext = req.body;
+    let timeline_id = req.params.timelineid
+    const result = connection.query(`INSERT INTO text (text_title, text_article, timeline_id) VALUES ('${newtext.text_title}', '${newtext.text_article}','${timeline_id}')`);
+    newtext.timeline_id = timeline_id
+    res.status(201).json(newtext)
 
+})
 
 
 
