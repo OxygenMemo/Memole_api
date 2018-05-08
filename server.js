@@ -22,23 +22,37 @@ app.get('/', function (req, res) {
   });
   
 })
-
+//---------------------- timeline ----------------------
 //timeline by userid
 app.get('/timeline/:timelineid',(req,res) => {
     let timeline_id = req.params.timelineid
     const result = connection.query(`SELECT * FROM timeline WHERE timeline_id = ${timeline_id}`);
     res.status(200).json(result)
 })
+
+//insert timeline
 app.post('/timeline',(req,res) => {
     let newtimeline = req.body;
     const result = connection.query(`INSERT INTO timeline (timeline_name, timeline_userid ) VALUES ('${newtimeline.timeline_name}', '${newtimeline.timeline_userid}')`);
     res.status(201).json(newtimeline);
 })
+//delete
 app.delete('/timeline/:timelineid',(req,res) => {
     let timeline_id = req.params.timelineid
     const result = connection.query(`DELETE FROM timeline WHERE timeline_id = ${timeline_id}`);
     res.status(204).json()
 })
+//---------------------- text ----------------------
+
+//get text by timeline id
+app.get('/timeline/:timelineid/text/',(req,res) => {
+    let timeline_id = req.params.timelineid
+    const result = connection.query(`SELECT * FROM timeline INNER JOIN text ON text.timeline_id = timeline.timeline_id WHERE timeline.timeline_id = ${timeline_id}`);
+    res.status(200).json(result)
+})
+
+
+
 
 var server = app.listen(8082, function () {
    var host = server.address().address
