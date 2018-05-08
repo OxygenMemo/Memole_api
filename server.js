@@ -1,9 +1,10 @@
 var express = require('express');
 var app = express();
-var mysql = require('mysql'); 
+var MySql = require('sync-mysql');
 const bodyParser = require('body-parser')
 
-var con = mysql.createConnection({
+
+  var connection = new MySql({
     host: "localhost",
     user: "root",
     password: "p@ssw0rd",
@@ -19,27 +20,26 @@ app.get('/', function (req, res) {
     if (err) throw err;
     console.log("Connected!");
   });
+  
 })
 
+//timeline by userid
+app.get('/timeline/:timelineid',(req,res) => {
+    let timeline_id = req.params.timelineid
+    const result = connection.query(`SELECT * FROM timeline WHERE timeline_id = ${timeline_id}`);
+    res.status(200).json(result)
+})
 app.post('/timeline',(req,res) => {
     let newtimeline = req.body;
-
-    try{
-        con.connect(function(err) {
-            if (err) throw err;
-            console.log("Connected!");
-            var sql = `INSERT INTO timeline (timeline_name, timeline_userid ) VALUES ('${newtimeline.timeline_name}', '${newtimeline.timeline_userid}')`;
-            con.query(sql, function (err, result) {
-            if (err) throw err;
-            console.log("1 record inserted");
-
-            res.status(201).json(newtimeline);
-            });
-        });
-    }catch(err){
-        console.log(err)
-    }
+    const result = connection.query(`INSERT INTO timeline (timeline_name, timeline_userid ) VALUES ('${newtimeline.timeline_name}', '${newtimeline.timeline_userid}')`);
+    res.status(201).json(newtimeline);
 })
+app.delete('/timeline/:timelineid',(req,res) => {
+    let timeline_id = req.params.timelineid
+    const result = connection.query(`DELETE FROM timeline WHERE timeline_id = ${timeline_id}`);
+    res.status(204).json()
+})
+
 var server = app.listen(8082, function () {
    var host = server.address().address
    var port = server.address().port
