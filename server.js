@@ -2,15 +2,23 @@ var express = require('express');
 var app = express();
 var MySql = require('sync-mysql');
 const bodyParser = require('body-parser')
+var cors = require('cors')
 
 
-  var connection = new MySql({
+
+var connection = new MySql({
     host: "localhost",
     user: "root",
     password: "p@ssw0rd",
     database: "myapp"
-  });
+});
 
+var corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+app.use(cors(corsOptions))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -21,6 +29,12 @@ app.get('/', function (req, res) {
     console.log("Connected!");
   });
   
+})
+//---------------------- user timeline ----------------
+app.get('/user/:userid/timeline',(req,res) => {
+    let user_id = req.params.userid
+    const result = connection.query(`SELECT * FROM timeline WHERE timeline_userid = ${user_id}`);
+    res.status(200).json(result)
 })
 //---------------------- timeline ----------------------
 //timeline by userid
@@ -47,7 +61,7 @@ app.delete('/timeline/:timelineid',(req,res) => {
 //get text by timeline id
 app.get('/timeline/:timelineid/text',(req,res) => {
     let timeline_id = req.params.timelineid
-    const result = connection.query(`SELECT * FROM timeline INNER JOIN text ON text.timeline_id = timeline.timeline_id WHERE timeline.timeline_id = ${timeline_id}`);
+    const result = connection.query(`SELECT * FROM text WHERE timeline_id = ${timeline_id}`);
     res.status(200).json(result)
 })
 //insert text 
